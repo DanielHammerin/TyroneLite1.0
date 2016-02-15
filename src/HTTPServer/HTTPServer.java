@@ -25,7 +25,6 @@ public class HTTPServer {
             System.out.println("Awaiting new connection.");
             Socket clientSocket = serverSocket.accept();
             System.out.println("Connection established to: " + clientSocket);
-            Thread.sleep(200);
 
             Runnable connectionHandler = new TCPConnectionHandler(clientSocket);
             new Thread(connectionHandler).start();
