@@ -4,6 +4,7 @@ import java.io.*;
 import java.net.Socket;
 import java.net.SocketException;
 import java.util.Date;
+import java.util.StringTokenizer;
 
 /**
  * Created by Daniel & Austin on 2016-02-15.
@@ -30,11 +31,22 @@ public class HTTPConnectionHandler implements Runnable {
                 try {
                     InputStreamReader isr = new InputStreamReader(clientSocket.getInputStream());
                     BufferedReader reader = new BufferedReader(isr);
-                    String line = "test";
-                    // String line = reader.readLine();
+
+                     String line = reader.readLine();
+
+                    StringTokenizer token = new StringTokenizer(line);
+                    String httpMethod = token.nextToken();
+                    String httpQuery = token.nextToken();
+
+                    if(httpMethod.equals("GET")){
+                        if(httpQuery.equals("/")){
+                            
+                        }
+                    }
                     while (!line.isEmpty()) {
                         System.out.println(line);
                         line = reader.readLine();
+
                     }
 
                     Date today = new Date();
