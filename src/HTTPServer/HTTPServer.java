@@ -1,13 +1,8 @@
 package HTTPServer;
 
-import java.io.IOException;
-import java.io.OutputStream;
-import java.net.InetSocketAddress;
 import java.net.ServerSocket;
+import java.net.Socket;
 
-import com.sun.net.httpserver.HttpExchange;
-import com.sun.net.httpserver.HttpHandler;
-import com.sun.net.httpserver.HttpServer;
 
 /**
  * Created by Daniel on 2016-02-15.
@@ -24,6 +19,16 @@ public class HTTPServer {
         } catch (Exception e) {
             System.out.println("Port already in use.");
             System.exit(1);
+        }
+
+        while (true) {
+            System.out.println("Awaiting new connection.");
+            Socket clientSocket = serverSocket.accept();
+            System.out.println("Connection established to: " + clientSocket);
+            Thread.sleep(200);
+
+            Runnable connectionHandler = new TCPConnectionHandler(clientSocket);
+            new Thread(connectionHandler).start();
         }
     }
 
