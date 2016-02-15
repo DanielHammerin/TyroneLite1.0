@@ -26,7 +26,8 @@ public class HTTPServer {
             Socket clientSocket = serverSocket.accept();
             System.out.println("Connection established to: " + clientSocket);
 
-            Runnable connectionHandler = new TCPConnectionHandler(clientSocket);
+
+            Runnable connectionHandler = new HTTPConnectionHandler(clientSocket);
             new Thread(connectionHandler).start();
         }
     }
