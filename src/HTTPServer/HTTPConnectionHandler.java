@@ -28,8 +28,6 @@ public class HTTPConnectionHandler implements Runnable {
         try {
             while (run) {
                 try {
-
-
                     InputStreamReader isr = new InputStreamReader(clientSocket.getInputStream());
                     BufferedReader reader = new BufferedReader(isr);
                     String line = "test";
@@ -37,39 +35,27 @@ public class HTTPConnectionHandler implements Runnable {
                     while (!line.isEmpty()) {
                         System.out.println(line);
                         line = reader.readLine();
-
-
                     }
 
                     Date today = new Date();
                     String httpResponse = "HTTP/1.1 200 OK\r\n\r\n" + today;
                     clientSocket.getOutputStream().write(httpResponse.getBytes("UTF-8"));
 
+                } catch (SocketException e) {
+                    System.out.println("Connection terminated by client.");
+                    run = false;
+                    System.out.println("Awaiting new connection.");
+                }
 
-
-            }catch(SocketException e){
-                System.out.println("Connection terminated by client.");
-
-                run = false;
-                System.out.println("Awaiting new connection.");
             }
+            inFromClient.close();
+            outToClient.close();
+            clientSocket.close();
 
+        } catch (IOException e) {
+            System.out.println("Could not listen on port: " + clientSocket.getLocalPort());
+            System.out.println("Client thread terminated.");
         }
-
-        inFromClient.close();
-        outToClient.close();
-        clientSocket.close();
-
     }
-
-    catch(
-    IOException e
-    )
-
-    {
-        System.out.println("Could not listen on port: " + clientSocket.getLocalPort());
-        System.out.println("Client thread terminated.");
-    }
-}
 
 }

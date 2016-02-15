@@ -17,9 +17,9 @@ public abstract class Validator {
 
         if (Integer.parseInt(args) > 1024 || Integer.parseInt(args) < 0) {   //reasonable max UDP size according to the Internet
             return false;
-        } else
-
+        } else {
             return true;
+        }
     }
 
     public final boolean checkIPv4(final String ip) {
@@ -41,11 +41,8 @@ public abstract class Validator {
             return false;
         }
         //1-65535 valid port ranges
-        else
-
-
+        else {
             return true;
+        }
     }
-
-
 }
