@@ -39,7 +39,7 @@ public class TCPConnectionHandler implements Runnable {
                     String message = new String(dataBuffer);
                     System.out.println("Message recieved: " + message);
 
-                    outToClient.write(message.getBytes(),0, msgLength);
+                    outToClient.write(message.getBytes());
                     outToClient.flush();
                     System.out.println("Echo message sent: " + message);
 
