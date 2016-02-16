@@ -1,5 +1,6 @@
 package HTTPServer;
 
+import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 
@@ -14,7 +15,7 @@ public class HTTPServer {
 
     public static void main(String[] args) throws Exception {
         try {
-            serverSocket = new ServerSocket(SERVERPORT);
+            serverSocket = new ServerSocket(SERVERPORT, 10, InetAddress.getByName("127.0.0.1"));
             System.out.println("Server started.");
         } catch (Exception e) {
             System.out.println("Port already in use.");
@@ -22,7 +23,6 @@ public class HTTPServer {
         }
 
         while (true) {
-            System.out.println("Awaiting new connection.");
             Socket clientSocket = serverSocket.accept();
             System.out.println("Connection established to: " + clientSocket);
 

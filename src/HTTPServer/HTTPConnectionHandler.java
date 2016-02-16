@@ -11,15 +11,13 @@ import java.util.StringTokenizer;
  * Created by Daniel & Austin on 2016-02-15.
  */
 public class HTTPConnectionHandler implements Runnable {
-    private final Socket clientSocket;
+    private Socket clientSocket = null;
 
     static final String HTML_START = "<html>" + "<title>HTTP Server in java</title>" + "<body>";
     static final String HTML_END = "</body>" + "</html>";
 
-    private boolean run = true;
-
-    private BufferedReader inFromClient;
-    private DataOutputStream outToClient;
+    private BufferedReader inFromClient = null;
+    private DataOutputStream outToClient = null;
 
     public HTTPConnectionHandler(Socket clientSocket) {
         this.clientSocket = clientSocket;
@@ -29,64 +27,55 @@ public class HTTPConnectionHandler implements Runnable {
     @Override
     public void run() {
         try {
-            while (run) {
-                try {
-                    System.out.println("The Client " +
-                            clientSocket.getInetAddress() + ":" + clientSocket.getPort() + " is connected");
+            System.out.println("The Client " +
+                    clientSocket.getInetAddress() + ":" + clientSocket.getPort() + " is connected");
 
-                    inFromClient = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
-                    outToClient = new DataOutputStream(clientSocket.getOutputStream());
+            inFromClient = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
+            outToClient = new DataOutputStream(clientSocket.getOutputStream());
 
-                    String requestString = inFromClient.readLine();
-                    String headerLine = requestString;
+            String requestString = inFromClient.readLine();
+            String headerLine = requestString;
 
-                    StringTokenizer tokenizer = new StringTokenizer(headerLine);
-                    String httpMethod = tokenizer.nextToken();
-                    String httpQueryString = tokenizer.nextToken();
+            StringTokenizer tokenizer = new StringTokenizer(headerLine);
+            String httpMethod = tokenizer.nextToken();
+            String httpQueryString = tokenizer.nextToken();
 
-                    StringBuffer responseBuffer = new StringBuffer();
-                    responseBuffer.append("<b> This is the HTTP Server Home Page.... </b><BR>");
-                    responseBuffer.append("The HTTP Client request is ....<BR>");
+            StringBuffer responseBuffer = new StringBuffer();
+            responseBuffer.append("<b> This is the HTTP Server Home Page.... </b><BR>");
+            responseBuffer.append("The HTTP Client request is ....<BR>");
 
-                    System.out.println("The HTTP request string is ....");
-                    while (inFromClient.ready()) {
-                        // Read the HTTP complete HTTP Query
-                        responseBuffer.append(requestString + "<BR>");
-                        System.out.println(requestString);
-                        requestString = inFromClient.readLine();
-                    }
-
-                    if (httpMethod.equals("GET")) {
-                        if (httpQueryString.equals("/")) {
-                            // The default home page
-                            sendResponse(200, responseBuffer.toString(), false);
-                        } else {
-//This is interpreted as a file name
-                            String fileName = httpQueryString.replaceFirst("/", "");
-                            fileName = URLDecoder.decode(fileName);
-                            if (new File(fileName).isFile()) {
-                                sendResponse(200, fileName, true);
-                            } else {
-                                sendResponse(404, "<b>The Requested resource not found ...." +
-                                        "Usage: http://127.0.0.1:5000 or http://127.0.0.1:5000/</b>", false);
-                            }
-                        }
-                    } else sendResponse(404, "<b>The Requested resource not found ...." +
-                            "Usage: http://127.0.0.1:5000 or http://127.0.0.1:5000/</b>", false);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-
+            System.out.println("The HTTP request string is ....");
+            while (inFromClient.ready()) {
+                // Read the HTTP complete HTTP Query
+                responseBuffer.append(requestString + "<BR>");
+                System.out.println(requestString);
+                requestString = inFromClient.readLine();
             }
-            inFromClient.close();
-            outToClient.close();
-            clientSocket.close();
 
-        } catch (IOException e) {
-            System.out.println("Could not listen on port: " + clientSocket.getLocalPort());
-            System.out.println("Client thread terminated.");
+            if (httpMethod.equals("GET")) {
+                if (httpQueryString.equals("/")) {
+                    // The default home page
+                    sendResponse(200, responseBuffer.toString(), false);
+                } else {
+                    //This is interpreted as a file name
+                    String fileName = httpQueryString.replaceFirst("/", "");
+                    String decoded = "";
+                    URLDecoder.decode(decoded, fileName);
+
+                    if (new File(decoded).isFile()) {
+                        sendResponse(200, decoded, true);
+                    } else {
+                        sendResponse(404, "<b>The Requested resource not found ...." +
+                                "Usage: http://127.0.0.1:5000 or http://127.0.0.1:5000/</b>", false);
+                    }
+                }
+            } else sendResponse(404, "<b>The Requested resource not found ...." +
+                    "Usage: http://127.0.0.1:5000 or http://127.0.0.1:5000/</b>", false);
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
+
     public void sendResponse(int statusCode, String responseString, boolean isFile) throws Exception {
 
         String statusLine = null;
