@@ -3,6 +3,7 @@ package HTTPServer;
 import java.io.*;
 import java.net.Socket;
 import java.net.SocketException;
+import java.net.URLDecoder;
 import java.util.Date;
 import java.util.StringTokenizer;
 
@@ -11,16 +12,17 @@ import java.util.StringTokenizer;
  */
 public class HTTPConnectionHandler implements Runnable {
     private final Socket clientSocket;
-    private int bufferSize = 1024;                        //Bytes length of message to read into databuffer.
-    private byte[] dataBuffer;                          //Databuffer for message.
+
+    static final String HTML_START = "<html>" + "<title>HTTP Server in java</title>" + "<body>";
+    static final String HTML_END = "</body>" + "</html>";
+
     private boolean run = true;
 
-    private DataInputStream inFromClient;
+    private BufferedReader inFromClient;
     private DataOutputStream outToClient;
 
     public HTTPConnectionHandler(Socket clientSocket) {
         this.clientSocket = clientSocket;
-        this.dataBuffer = new byte[bufferSize];
     }
 
 
@@ -29,34 +31,50 @@ public class HTTPConnectionHandler implements Runnable {
         try {
             while (run) {
                 try {
-                    InputStreamReader isr = new InputStreamReader(clientSocket.getInputStream());
-                    BufferedReader reader = new BufferedReader(isr);
+                    System.out.println("The Client " +
+                            clientSocket.getInetAddress() + ":" + clientSocket.getPort() + " is connected");
 
-                     String line = reader.readLine();
+                    inFromClient = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
+                    outToClient = new DataOutputStream(clientSocket.getOutputStream());
 
-                    StringTokenizer token = new StringTokenizer(line);
-                    String httpMethod = token.nextToken();
-                    String httpQuery = token.nextToken();
+                    String requestString = inFromClient.readLine();
+                    String headerLine = requestString;
 
-                    if(httpMethod.equals("GET")){
-                        if(httpQuery.equals("/")){          //Refers to home page.
+                    StringTokenizer tokenizer = new StringTokenizer(headerLine);
+                    String httpMethod = tokenizer.nextToken();
+                    String httpQueryString = tokenizer.nextToken();
 
+                    StringBuffer responseBuffer = new StringBuffer();
+                    responseBuffer.append("<b> This is the HTTP Server Home Page.... </b><BR>");
+                    responseBuffer.append("The HTTP Client request is ....<BR>");
+
+                    System.out.println("The HTTP request string is ....");
+                    while (inFromClient.ready()) {
+                        // Read the HTTP complete HTTP Query
+                        responseBuffer.append(requestString + "<BR>");
+                        System.out.println(requestString);
+                        requestString = inFromClient.readLine();
+                    }
+
+                    if (httpMethod.equals("GET")) {
+                        if (httpQueryString.equals("/")) {
+                            // The default home page
+                            sendResponse(200, responseBuffer.toString(), false);
+                        } else {
+//This is interpreted as a file name
+                            String fileName = httpQueryString.replaceFirst("/", "");
+                            fileName = URLDecoder.decode(fileName);
+                            if (new File(fileName).isFile()) {
+                                sendResponse(200, fileName, true);
+                            } else {
+                                sendResponse(404, "<b>The Requested resource not found ...." +
+                                        "Usage: http://127.0.0.1:5000 or http://127.0.0.1:5000/</b>", false);
+                            }
                         }
-                    }
-                    while (!line.isEmpty()) {
-                        System.out.println(line);
-                        line = reader.readLine();
-
-                    }
-
-                    Date today = new Date();
-                    String httpResponse = "HTTP/1.1 200 OK\r\n\r\n" + today;
-                    clientSocket.getOutputStream().write(httpResponse.getBytes("UTF-8"));
-
-                } catch (SocketException e) {
-                    System.out.println("Connection terminated by client.");
-                    run = false;
-                    System.out.println("Awaiting new connection.");
+                    } else sendResponse(404, "<b>The Requested resource not found ...." +
+                            "Usage: http://127.0.0.1:5000 or http://127.0.0.1:5000/</b>", false);
+                } catch (Exception e) {
+                    e.printStackTrace();
                 }
 
             }
@@ -68,6 +86,53 @@ public class HTTPConnectionHandler implements Runnable {
             System.out.println("Could not listen on port: " + clientSocket.getLocalPort());
             System.out.println("Client thread terminated.");
         }
+    }
+    public void sendResponse(int statusCode, String responseString, boolean isFile) throws Exception {
+
+        String statusLine = null;
+        String serverdetails = "Server: Java HTTPServer";
+        String contentLengthLine = null;
+        String fileName = null;
+        String contentTypeLine = "Content-Type: text/html" + "\r\n";
+        FileInputStream fin = null;
+
+        if (statusCode == 200)
+            statusLine = "HTTP/1.1 200 OK" + "\r\n";
+        else
+            statusLine = "HTTP/1.1 404 Not Found" + "\r\n";
+
+        if (isFile) {
+            fileName = responseString;
+            fin = new FileInputStream(fileName);
+            contentLengthLine = "Content-Length: " + Integer.toString(fin.available()) + "\r\n";
+            if (!fileName.endsWith(".htm") && !fileName.endsWith(".html"))
+                contentTypeLine = "Content-Type: \r\n";
+        } else {
+            responseString = HTTPConnectionHandler.HTML_START + responseString + HTTPConnectionHandler.HTML_END;
+            contentLengthLine = "Content-Length: " + responseString.length() + "\r\n";
+        }
+
+        outToClient.writeBytes(statusLine);
+        outToClient.writeBytes(serverdetails);
+        outToClient.writeBytes(contentTypeLine);
+        outToClient.writeBytes(contentLengthLine);
+        outToClient.writeBytes("Connection: close\r\n");
+        outToClient.writeBytes("\r\n");
+
+        if (isFile) sendFile(fin, outToClient);
+        else outToClient.writeBytes(responseString);
+
+        outToClient.close();
+    }
+
+    public void sendFile(FileInputStream fin, DataOutputStream out) throws Exception {
+        byte[] buffer = new byte[1024];
+        int bytesRead;
+
+        while ((bytesRead = fin.read(buffer)) != -1) {
+            out.write(buffer, 0, bytesRead);
+        }
+        fin.close();
     }
 
 }
