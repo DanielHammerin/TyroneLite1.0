@@ -12,13 +12,13 @@ import java.util.StringTokenizer;
  */
 public class HTTPConnectionHandler implements Runnable {
     private Socket clientSocket = null;
-
+    private String folderAddressToAccess = "D:/sharedfolder";   //Server folder with allowed access. Change this string to a desired folder to have access.
     static final String HTML_START = "<html>" + "<title>HTTP Server in java</title>" + "<body>";
     static final String HTML_END = "</body>" + "</html>";
 
     private BufferedReader inFromClient = null;
     private DataOutputStream outToClient = null;
-
+    private String headerLine;
     public HTTPConnectionHandler(Socket clientSocket) {
         this.clientSocket = clientSocket;
     }
@@ -34,7 +34,7 @@ public class HTTPConnectionHandler implements Runnable {
             outToClient = new DataOutputStream(clientSocket.getOutputStream());
 
             String requestString = inFromClient.readLine();
-            String headerLine = requestString;
+            headerLine = requestString;
 
             StringTokenizer tokenizer = new StringTokenizer(headerLine);
             String httpMethod = tokenizer.nextToken();
@@ -62,9 +62,14 @@ public class HTTPConnectionHandler implements Runnable {
                     fileName = URLDecoder.decode(fileName, "UTF-8");
 
                     if (new File(fileName).isFile()) {
-                        sendResponse(200, fileName, true);
+                        if(userPermission(responseBuffer.toString())) {
+                            sendResponse(200, fileName, true);
+                        }else {
+                            sendResponse(403,"<b>The Requested resource is forbidden." +
+                                    "Usage: http://127.0.0.1:5000 or http://127.0.0.1:5000/</b>", false);
+                        }
                     } else {
-                        sendResponse(404, "<b>The Requested resource not found ...." +
+                        sendResponse(400, "<b>The Requested resource is not a file." +
                                 "Usage: http://127.0.0.1:5000 or http://127.0.0.1:5000/</b>", false);
                     }
                 }
@@ -73,6 +78,13 @@ public class HTTPConnectionHandler implements Runnable {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    private boolean userPermission(String request) {
+        if (request.contains(folderAddressToAccess)) {
+            return true;
+        }
+        return false;
     }
 
     public void sendResponse(int statusCode, String responseString, boolean isFile) throws Exception {
