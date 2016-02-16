@@ -13,12 +13,14 @@ import java.util.StringTokenizer;
 public class HTTPConnectionHandler implements Runnable {
     private Socket clientSocket = null;
     private String folderAddressToAccess = "D:/sharedfolder";   //Server folder with allowed access. Change this string to a desired folder to have access.
+    private String forbiddenFolder = "D:/sharedfolder/forbiddenFolder";    //Personal forbidden folder in the allowed folder.
     static final String HTML_START = "<html>" + "<title>HTTP Server in java</title>" + "<body>";
     static final String HTML_END = "</body>" + "</html>";
 
     private BufferedReader inFromClient = null;
     private DataOutputStream outToClient = null;
     private String headerLine;
+
     public HTTPConnectionHandler(Socket clientSocket) {
         this.clientSocket = clientSocket;
     }
@@ -65,11 +67,11 @@ public class HTTPConnectionHandler implements Runnable {
                         if(userPermission(responseBuffer.toString())) {
                             sendResponse(200, fileName, true);
                         }else {
-                            sendResponse(403,"<b>The Requested resource is forbidden." +
+                            sendResponse(403,"<b>The Requested resource is forbidden. " +
                                     "Usage: http://127.0.0.1:5000 or http://127.0.0.1:5000/</b>", false);
                         }
                     } else {
-                        sendResponse(400, "<b>The Requested resource is not a file." +
+                        sendResponse(400, "<b>The Requested resource is not a file. " +
                                 "Usage: http://127.0.0.1:5000 or http://127.0.0.1:5000/</b>", false);
                     }
                 }
@@ -81,7 +83,10 @@ public class HTTPConnectionHandler implements Runnable {
     }
 
     private boolean userPermission(String request) {
-        if (request.contains(folderAddressToAccess)) {
+        if (request.contains(folderAddressToAccess)) {  //If the file requested is within sharedfolder.
+            if (request.contains(forbiddenFolder)) {    //But if it's in the forbidden folder.
+                return false;
+            }
             return true;
         }
         return false;
