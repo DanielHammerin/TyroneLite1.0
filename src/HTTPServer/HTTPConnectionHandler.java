@@ -112,10 +112,16 @@ public class HTTPConnectionHandler implements Runnable {
         String contentTypeLine = "Content-Type: text/html" + "\r\n";
         FileInputStream fin = null;
 
-        if (statusCode == 200)
+        if (statusCode == 200) {
             statusLine = "HTTP/1.1 200 OK" + "\r\n";
-        else
+        }
+
+        else if (statusCode == 400) {
+            statusLine = "HTTP/1.1 400 BAD REQUEST" + "\r\n";
+        }
+        else {
             statusLine = "HTTP/1.1 404 Not Found" + "\r\n";
+        }
 
         if (isFile) {
             fileName = responseString;
@@ -124,6 +130,7 @@ public class HTTPConnectionHandler implements Runnable {
             if (!fileName.endsWith(".htm") && !fileName.endsWith(".html"))
                 contentTypeLine = "Content-Type: \r\n";
         } else {
+            responseString = statusLine;
             responseString = HTTPConnectionHandler.HTML_START + responseString + HTTPConnectionHandler.HTML_END;
             contentLengthLine = "Content-Length: " + responseString.length() + "\r\n";
         }
