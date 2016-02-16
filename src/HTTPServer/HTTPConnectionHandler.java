@@ -113,11 +113,17 @@ public class HTTPConnectionHandler implements Runnable {
         FileInputStream fin = null;
 
         if (statusCode == 200) {
-            statusLine = "HTTP/1.1 200 OK" + "\r\n";
+            statusLine = "HTTP/1.1 200 OK." + "\r\n";
         }
 
         else if (statusCode == 400) {
-            statusLine = "HTTP/1.1 400 BAD REQUEST" + "\r\n";
+            statusLine = "HTTP/1.1 400 BAD REQUEST." + "\r\n";
+        }
+        else if (statusCode == 403) {
+            statusLine = "HTTP/1.1 403 FORBIDDEN." + "\r\n";
+        }
+        else if (statusCode == 500) {
+            statusLine = "HTTP/1.1 500 INTERNAL SERVER ERROR." + "\r\n";
         }
         else {
             statusLine = "HTTP/1.1 404 Not Found" + "\r\n";
@@ -130,7 +136,6 @@ public class HTTPConnectionHandler implements Runnable {
             if (!fileName.endsWith(".htm") && !fileName.endsWith(".html"))
                 contentTypeLine = "Content-Type: \r\n";
         } else {
-            responseString = statusLine;
             responseString = HTTPConnectionHandler.HTML_START + responseString + HTTPConnectionHandler.HTML_END;
             contentLengthLine = "Content-Length: " + responseString.length() + "\r\n";
         }
@@ -142,8 +147,15 @@ public class HTTPConnectionHandler implements Runnable {
         outToClient.writeBytes("Connection: close\r\n");
         outToClient.writeBytes("\r\n");
 
-        if (isFile) sendFile(fin, outToClient);
-        else outToClient.writeBytes(responseString);
+
+        if (isFile) {
+            sendFile(fin, outToClient);
+            System.out.println(statusLine);
+        }
+        else {
+            outToClient.writeBytes(responseString);
+            System.out.println(statusLine);
+        }
 
         outToClient.close();
     }
