@@ -39,8 +39,8 @@ public class HTTPConnectionHandler implements Runnable {
                     String httpQuery = token.nextToken();
 
                     if(httpMethod.equals("GET")){
-                        if(httpQuery.equals("/")){
-                            
+                        if(httpQuery.equals("/")){          //Refers to home page.
+
                         }
                     }
                     while (!line.isEmpty()) {
