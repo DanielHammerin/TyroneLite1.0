@@ -2,9 +2,7 @@ package HTTPServer;
 
 import java.io.*;
 import java.net.Socket;
-import java.net.SocketException;
 import java.net.URLDecoder;
-import java.util.Date;
 import java.util.StringTokenizer;
 
 /**
@@ -15,6 +13,7 @@ public class HTTPConnectionHandler implements Runnable {
     private String folderAddressToAccess = "D:/sharedfolder";   //Server folder with allowed access. Change this string to a desired folder to have access.
     private String forbiddenFolder = "D:/sharedfolder/forbiddenFolder";    //Personal forbidden folder in the allowed folder.
     static final String HTML_START = "<html>" + "<title>HTTP Server in java</title>" + "<body>";
+
     static final String HTML_END = "</body>" + "</html>";
 
     private BufferedReader inFromClient = null;
@@ -66,17 +65,29 @@ public class HTTPConnectionHandler implements Runnable {
                     if (new File(fileName).isFile()) {
                         if(userPermission(responseBuffer.toString())) {
                             sendResponse(200, fileName, true);
+                            responseBuffer.append("<b> AUSTIN IS A GENIUS.... </b><BR>");
                         }else {
-                            sendResponse(403,"<b>The Requested resource is forbidden. " +
+                            sendResponse(403,"<b>ERR:403 The Requested resource is forbidden. " +
                                     "Usage: http://127.0.0.1:5000 or http://127.0.0.1:5000/</b>", false);
                         }
                     } else {
-                        sendResponse(400, "<b>The Requested resource is not a file. " +
+                        sendResponse(400, "<b>ERR:400 The Requested resource is not an html file or image file " +
                                 "Usage: http://127.0.0.1:5000 or http://127.0.0.1:5000/</b>", false);
                     }
+
+
                 }
-            } else sendResponse(404, "<b>The Requested resource not found ...." +
+            } else sendResponse(404, "<b>ERR:404 The Requested resource not found ...." +
                     "Usage: http://127.0.0.1:5000 or http://127.0.0.1:5000/</b>", false);
+
+
+
+
+          //  sendResponse(500, "<b>ERR:500 The server encountered an unexpected error ...." +
+           //         "Usage: http://127.0.0.1:5000 or http://127.0.0.1:5000/</b>", false);
+
+
+
         } catch (Exception e) {
             e.printStackTrace();
         }
