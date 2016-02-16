@@ -59,11 +59,10 @@ public class HTTPConnectionHandler implements Runnable {
                 } else {
                     //This is interpreted as a file name
                     String fileName = httpQueryString.replaceFirst("/", "");
-                    String decoded = "";
-                    URLDecoder.decode(decoded, fileName);
+                    fileName = URLDecoder.decode(fileName, "UTF-8");
 
-                    if (new File(decoded).isFile()) {
-                        sendResponse(200, decoded, true);
+                    if (new File(fileName).isFile()) {
+                        sendResponse(200, fileName, true);
                     } else {
                         sendResponse(404, "<b>The Requested resource not found ...." +
                                 "Usage: http://127.0.0.1:5000 or http://127.0.0.1:5000/</b>", false);
