@@ -1,7 +1,5 @@
 package HTTPServer;
 
-import HttpResponses.HttpResponseHandler;
-
 import javax.xml.crypto.Data;
 import java.io.*;
 import java.net.Socket;
@@ -21,8 +19,6 @@ public class HTTPConnectionHandler implements Runnable {
     private BufferedReader inFromClient = null;
     private DataOutputStream outToClient = null;
     private String headerLine;
-
-    private HttpResponseHandler rh = new HttpResponseHandler();
 
     public HTTPConnectionHandler(Socket clientSocket) {
         this.clientSocket = clientSocket;
@@ -60,7 +56,7 @@ public class HTTPConnectionHandler implements Runnable {
             if (httpMethod.equals("GET")) {
                 if (httpQueryString.equals("/")) {
                     // The default home page
-                    rh.sendHttpResponse(200, responseBuffer.toString(), false, outToClient);
+                    sendResponse(200, responseBuffer.toString(), false);
                 } else {
                     //This is interpreted as a file name
                     String fileName = httpQueryString.replaceFirst("/", "");
@@ -75,20 +71,12 @@ public class HTTPConnectionHandler implements Runnable {
                                     "Usage: http://127.0.0.1:5000 or http://127.0.0.1:5000/</b>", false);
                         }
                     } else {
-                        if (!fileName.endsWith(".html") || !fileName.endsWith(".htm") || !fileName.endsWith(".jpeg") || !fileName.endsWith(".png")) {
-                            sendResponse(400, "<b>ERR:400 The Requested resource is not an html file or image file " +
-                                    "Usage: http://127.0.0.1:5000 or http://127.0.0.1:5000/</b>", false);
-                        }
-                        else {
-                            rh.sendHttpResponse(404, "<b>ERR:404 The Requested resource not found ...." +
-                                    "Usage: http://127.0.0.1:5000 or http://127.0.0.1:5000/</b>", false, outToClient);
-                        }
+                        sendResponse(400, "<b>ERR:400 The Requested resource is not an html file or image file " +
+                                "Usage: http://127.0.0.1:5000 or http://127.0.0.1:5000/</b>", false);
                     }
                 }
-            } else {
-                rh.sendHttpResponse(404, "<b>ERR:404 The Requested resource not found ...." +
-                        "Usage: http://127.0.0.1:5000 or http://127.0.0.1:5000/</b>", false, outToClient);
-            }
+            } else sendResponse(404, "<b>ERR:404 The Requested resource not found ...." +
+                    "Usage: http://127.0.0.1:5000 or http://127.0.0.1:5000/</b>", false);
 
         } catch (Exception e) {
             e.printStackTrace();
