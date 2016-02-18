@@ -14,7 +14,6 @@ public class HTTPConnectionHandler implements Runnable {
     private String folderAddressToAccess = "D:/sharedfolder";   //Server folder with allowed access. Change this string to a desired folder to have access.
     private String forbiddenFolder = "D:/sharedfolder/forbiddenFolder";    //Personal forbidden folder in the allowed folder.
     static final String HTML_START = "<html>" + "<title>HTTP Server in java</title>" + "<body>";
-
     static final String HTML_END = "</body>" + "</html>";
 
     private BufferedReader inFromClient = null;
