@@ -8,8 +8,19 @@ import java.io.FileInputStream;
  */
 public class HttpResponseHandler {
 
-    public void sendHttpResponse(int statusCode, String responseLine, boolean isFile, DataOutputStream out) {     //Checks response and sends the appropriate response.
-
+    public void sendHttpResponse(int statusCode, String responseLine, boolean isFile, DataOutputStream out) throws Exception {     //Checks response and sends the appropriate response.
+        if (statusCode == 200) {
+            HTTP200OK r200 = new HTTP200OK();
+            r200.sendResponse(responseLine, isFile, out);
+        } else if (statusCode == 400) {
+            statusLine = "HTTP/1.1 400 BAD REQUEST." + "\r\n";
+        } else if (statusCode == 403) {
+            statusLine = "HTTP/1.1 403 FORBIDDEN." + "\r\n";
+        } else if (statusCode == 500) {
+            statusLine = "HTTP/1.1 500 INTERNAL SERVER ERROR." + "\r\n";
+        } else {
+            statusLine = "HTTP/1.1 404 Not Found" + "\r\n";
+        }
     }
 
     public void sendFile(FileInputStream fin, DataOutputStream out) throws Exception {

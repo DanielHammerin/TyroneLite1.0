@@ -16,8 +16,9 @@ public class HTTP200OK implements IHttpResponseMessage {
     private FileInputStream fin = null;
 
     HttpResponseHandler hrh = new HttpResponseHandler();
+
     @Override
-    public void sendResponse(int statusCode, String responseLine, boolean isFile, DataOutputStream outToClient) throws Exception {
+    public void sendResponse(String responseLine, boolean isFile, DataOutputStream outToClient) throws Exception {
         if (isFile) {
             fileName = responseLine;
             fin = new FileInputStream(fileName);

@@ -10,5 +10,5 @@ import java.io.FileNotFoundException;
 public interface IHttpResponseMessage {
     String HTML_START = "<html>" + "<title>HTTP Server in java</title>" + "<body>";
     String HTML_END = "</body>" + "</html>";
-    void sendResponse(int statusCode, String responseLine, boolean isFile, DataOutputStream out) throws Exception;
+    void sendResponse(String responseLine, boolean isFile, DataOutputStream out) throws Exception;
 }
