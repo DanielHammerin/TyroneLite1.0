@@ -27,7 +27,6 @@ public class HTTPServer {
             }
             else {
                 System.out.println(down);
-                serverDown();
             }
         } catch (Exception e) {
             System.out.println("Port already in use.");
@@ -42,10 +41,4 @@ public class HTTPServer {
             new Thread(connectionHandler).start();
         }
     }
-
-    private static void serverDown() {
-
-    }
-
-
 }

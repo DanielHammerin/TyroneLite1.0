@@ -1,5 +1,6 @@
 package HTTPServer;
 
+import javax.xml.crypto.Data;
 import java.io.*;
 import java.net.Socket;
 import java.net.URLDecoder;
@@ -63,33 +64,30 @@ public class HTTPConnectionHandler implements Runnable {
                     fileName = URLDecoder.decode(fileName, "UTF-8");
 
                     if (new File(fileName).isFile()) {
-                        if(userPermission(responseBuffer.toString())) {
+                        if (userPermission(responseBuffer.toString())) {
                             sendResponse(200, fileName, true);
                             responseBuffer.append("<b> AUSTIN IS A GENIUS.... </b><BR>");
-                        }else {
-                            sendResponse(403,"<b>ERR:403 The Requested resource is forbidden. " +
+                        } else {
+                            sendResponse(403, "<b>ERR:403 The Requested resource is forbidden. " +
                                     "Usage: http://127.0.0.1:5000 or http://127.0.0.1:5000/</b>", false);
                         }
                     } else {
                         sendResponse(400, "<b>ERR:400 The Requested resource is not an html file or image file " +
                                 "Usage: http://127.0.0.1:5000 or http://127.0.0.1:5000/</b>", false);
                     }
-
-
                 }
             } else sendResponse(404, "<b>ERR:404 The Requested resource not found ...." +
                     "Usage: http://127.0.0.1:5000 or http://127.0.0.1:5000/</b>", false);
 
-
-
-
-          //  sendResponse(500, "<b>ERR:500 The server encountered an unexpected error ...." +
-           //         "Usage: http://127.0.0.1:5000 or http://127.0.0.1:5000/</b>", false);
-
-
-
         } catch (Exception e) {
             e.printStackTrace();
+            try {
+                sendResponse(500, "<b>ERR:500 The server encountered an unexpected error ...." +
+                        "Usage: http://127.0.0.1:5000 or http://127.0.0.1:5000/</b>", false);
+            } catch (Exception e1) {
+                e1.printStackTrace();
+                System.out.println("Could not send HTTP 500 message.");
+            }
         }
     }
 
@@ -114,18 +112,13 @@ public class HTTPConnectionHandler implements Runnable {
 
         if (statusCode == 200) {
             statusLine = "HTTP/1.1 200 OK." + "\r\n";
-        }
-
-        else if (statusCode == 400) {
+        } else if (statusCode == 400) {
             statusLine = "HTTP/1.1 400 BAD REQUEST." + "\r\n";
-        }
-        else if (statusCode == 403) {
+        } else if (statusCode == 403) {
             statusLine = "HTTP/1.1 403 FORBIDDEN." + "\r\n";
-        }
-        else if (statusCode == 500) {
+        } else if (statusCode == 500) {
             statusLine = "HTTP/1.1 500 INTERNAL SERVER ERROR." + "\r\n";
-        }
-        else {
+        } else {
             statusLine = "HTTP/1.1 404 Not Found" + "\r\n";
         }
 
@@ -151,8 +144,7 @@ public class HTTPConnectionHandler implements Runnable {
         if (isFile) {
             sendFile(fin, outToClient);
             System.out.println(statusLine);
-        }
-        else {
+        } else {
             outToClient.writeBytes(responseString);
             System.out.println(statusLine);
         }
