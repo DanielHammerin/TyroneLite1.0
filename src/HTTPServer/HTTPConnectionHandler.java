@@ -65,18 +65,19 @@ public class HTTPConnectionHandler implements Runnable {
                     if (new File(fileName).isFile()) {
                         if (userPermission(responseBuffer.toString())) {
                             sendResponse(200, fileName, true);
-                            responseBuffer.append("<b> AUSTIN IS A GENIUS.... </b><BR>");
                         } else {
                             sendResponse(403, "<b>ERR:403 The Requested resource is forbidden. " +
                                     "Usage: http://127.0.0.1:5000 or http://127.0.0.1:5000/</b>", false);
                         }
                     } else {
-                        sendResponse(400, "<b>ERR:400 The Requested resource is not an html file or image file " +
-                                "Usage: http://127.0.0.1:5000 or http://127.0.0.1:5000/</b>", false);
+                        sendResponse(404, "<b>ERR:404 The Requested resource not found ...." +
+                                "Usage: http://127.0.0.1:5000 or http://127.0.0.1:5000/</b>", true);
                     }
                 }
-            } else sendResponse(404, "<b>ERR:404 The Requested resource not found ...." +
-                    "Usage: http://127.0.0.1:5000 or http://127.0.0.1:5000/</b>", false);
+            } else {
+                sendResponse(400, "<b>ERR:400 The Requested resource is not an html file or image file " +
+                        "Usage: http://127.0.0.1:5000 or http://127.0.0.1:5000/</b>", false);
+            }
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -111,6 +112,9 @@ public class HTTPConnectionHandler implements Runnable {
 
         if (statusCode == 200) {
             statusLine = "HTTP/1.1 200 OK." + "\r\n";
+            File file = new File("D:\\sharedfolder\\HttpResponses\\HTTP200OK.html");
+            fin = new FileInputStream(file);
+            sendFile(fin, outToClient);
         } else if (statusCode == 400) {
             statusLine = "HTTP/1.1 400 BAD REQUEST." + "\r\n";
         } else if (statusCode == 403) {
@@ -122,12 +126,20 @@ public class HTTPConnectionHandler implements Runnable {
         }
 
         if (isFile) {
-            fileName = responseString;
-            fin = new FileInputStream(fileName);
-            contentLengthLine = "Content-Length: " + Integer.toString(fin.available()) + "\r\n";
-            if (!fileName.endsWith(".htm") && !fileName.endsWith(".html"))
-                contentTypeLine = "Content-Type: \r\n";
-        } else {
+            if (statusCode == 404) {
+                File file = new File("D://sharedfolder//subShared//evendeeper//404Austin.png");
+                fin = new FileInputStream(file);
+                contentLengthLine = "Content-Length: " + Integer.toString(fin.available()) + "\r\n";
+            } else {
+                fileName = responseString;
+                fin = new FileInputStream(fileName);
+                contentLengthLine = "Content-Length: " + Integer.toString(fin.available()) + "\r\n";
+                if (!fileName.endsWith(".htm") && !fileName.endsWith(".html")) {
+                    contentTypeLine = "Content-Type: \r\n";
+                }
+            }
+        }
+        else {
             responseString = HTTPConnectionHandler.HTML_START + responseString + HTTPConnectionHandler.HTML_END;
             contentLengthLine = "Content-Length: " + responseString.length() + "\r\n";
         }
