@@ -11,8 +11,8 @@ import java.util.StringTokenizer;
  */
 public class HTTPConnectionHandler implements Runnable {
     private Socket clientSocket = null;
-    private String folderAddressToAccess = "D:/sharedfolder";   //Server folder with allowed access. Change this string to a desired folder to have access.
-    private String forbiddenFolder = "D:/sharedfolder/forbiddenFolder";    //Personal forbidden folder in the allowed folder.
+    private String folderAddressToAccess = "src/sharedfolder";   //Server folder with allowed access. Change this string to a desired folder to have access.
+    private String forbiddenFolder = "src/sharedfolder/forbiddenFolder";    //Personal forbidden folder in the allowed folder.
     static final String HTML_START = "<html>" + "<title>HTTP Server in java</title>" + "<body>";
     static final String HTML_END = "</body>" + "</html>";
 
@@ -112,7 +112,7 @@ public class HTTPConnectionHandler implements Runnable {
 
         if (statusCode == 200) {
             statusLine = "HTTP/1.1 200 OK." + "\r\n";
-            File file = new File("D:\\sharedfolder\\HttpResponses\\HTTP200OK.html");
+            File file = new File("src/HtmlResponses/HTTP200OK.html");
             fin = new FileInputStream(file);
             sendFile(fin, outToClient);
         } else if (statusCode == 400) {
@@ -127,7 +127,7 @@ public class HTTPConnectionHandler implements Runnable {
 
         if (isFile) {
             if (statusCode == 404) {
-                File file = new File("D://sharedfolder//subShared//evendeeper//404Austin.png");
+                File file = new File("src/HtmlResponses/HTTP404NotFound.html");
                 fin = new FileInputStream(file);
                 contentLengthLine = "Content-Length: " + Integer.toString(fin.available()) + "\r\n";
             } else {
