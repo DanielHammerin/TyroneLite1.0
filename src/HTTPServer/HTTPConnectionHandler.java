@@ -1,6 +1,5 @@
 package HTTPServer;
 
-import javax.xml.crypto.Data;
 import java.io.*;
 import java.net.Socket;
 import java.net.URLDecoder;
@@ -37,6 +36,7 @@ public class HTTPConnectionHandler implements Runnable {
             String requestString = inFromClient.readLine();
             headerLine = requestString;
 
+            inFromClient.readLine();
             StringTokenizer tokenizer = new StringTokenizer(headerLine);
             String httpMethod = tokenizer.nextToken();
             String httpQueryString = tokenizer.nextToken();
@@ -104,52 +104,61 @@ public class HTTPConnectionHandler implements Runnable {
     public void sendResponse(int statusCode, String responseString, boolean isFile) throws Exception {
 
         String statusLine = null;
-        String serverdetails = "Server: Java HTTPServer";
-        String contentLengthLine = null;
+
+
         String fileName = null;
-        String contentTypeLine = "Content-Type: text/html" + "\r\n";
+
         FileInputStream fin = null;
 
         if (statusCode == 200) {
-            statusLine = "HTTP/1.1 200 OK." + "\r\n";
+
             File file = new File("src/HtmlResponses/HTTP200OK.html");
             fin = new FileInputStream(file);
             sendFile(fin, outToClient);
+            
         } else if (statusCode == 400) {
-            statusLine = "HTTP/1.1 400 BAD REQUEST." + "\r\n";
+            File file = new File("src/HtmlResponses/HTTP400BadRequest.html");
+            fin = new FileInputStream(file);
+            sendFile(fin, outToClient);
+
         } else if (statusCode == 403) {
-            statusLine = "HTTP/1.1 403 FORBIDDEN." + "\r\n";
+            File file = new File("src/HtmlResponses/HTTP403Forbidden.html");
+            fin = new FileInputStream(file);
+            sendFile(fin, outToClient);
+
         } else if (statusCode == 500) {
-            statusLine = "HTTP/1.1 500 INTERNAL SERVER ERROR." + "\r\n";
-        } else {
-            statusLine = "HTTP/1.1 404 Not Found" + "\r\n";
+            File file = new File("src/HtmlResponses/HTTP500InternalServerError.html");
+            fin = new FileInputStream(file);
+            sendFile(fin, outToClient);
+
         }
 
         if (isFile) {
             if (statusCode == 404) {
                 File file = new File("src/HtmlResponses/HTTP404NotFound.html");
                 fin = new FileInputStream(file);
-                contentLengthLine = "Content-Length: " + Integer.toString(fin.available()) + "\r\n";
+                sendFile(fin, outToClient);
+
             } else {
                 fileName = responseString;
                 fin = new FileInputStream(fileName);
-                contentLengthLine = "Content-Length: " + Integer.toString(fin.available()) + "\r\n";
+
                 if (!fileName.endsWith(".htm") && !fileName.endsWith(".html")) {
-                    contentTypeLine = "Content-Type: \r\n";
+
                 }
             }
         }
         else {
             responseString = HTTPConnectionHandler.HTML_START + responseString + HTTPConnectionHandler.HTML_END;
-            contentLengthLine = "Content-Length: " + responseString.length() + "\r\n";
-        }
 
+        }
+/*
         outToClient.writeBytes(statusLine);
         outToClient.writeBytes(serverdetails);
         outToClient.writeBytes(contentTypeLine);
         outToClient.writeBytes(contentLengthLine);
         outToClient.writeBytes("Connection: close\r\n");
-        outToClient.writeBytes("\r\n");
+*/        outToClient.writeBytes("\r\n");
 
 
         if (isFile) {
@@ -160,7 +169,7 @@ public class HTTPConnectionHandler implements Runnable {
             System.out.println(statusLine);
         }
 
-        outToClient.close();
+        //outToClient.close();
     }
 
     public void sendFile(FileInputStream fin, DataOutputStream out) throws Exception {
@@ -170,7 +179,7 @@ public class HTTPConnectionHandler implements Runnable {
         while ((bytesRead = fin.read(buffer)) != -1) {
             out.write(buffer, 0, bytesRead);
         }
-        fin.close();
+       // fin.close();
     }
 
 }

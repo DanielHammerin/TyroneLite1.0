@@ -1,6 +1,5 @@
 package HTTPServer;
 
-import java.io.FileInputStream;
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
