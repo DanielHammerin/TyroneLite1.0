@@ -115,7 +115,7 @@ public class HTTPConnectionHandler implements Runnable {
             File file = new File("src/HtmlResponses/HTTP200OK.html");
             fin = new FileInputStream(file);
             sendFile(fin, outToClient);
-            
+
         } else if (statusCode == 400) {
             File file = new File("src/HtmlResponses/HTTP400BadRequest.html");
             fin = new FileInputStream(file);
