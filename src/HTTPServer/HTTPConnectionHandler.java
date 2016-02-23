@@ -66,24 +66,20 @@ public class HTTPConnectionHandler implements Runnable {
                         if (userPermission(responseBuffer.toString())) {
                             sendResponse(200, fileName, true);
                         } else {
-                            sendResponse(403, "<b>ERR:403 The Requested resource is forbidden. " +
-                                    "Usage: http://127.0.0.1:5000 or http://127.0.0.1:5000/</b>", false);
+                            sendResponse(403, "<b>ERR:403 The Requested resource is forbidden. ", false);
                         }
                     } else {
-                        sendResponse(404, "<b>ERR:404 The Requested resource not found ...." +
-                                "Usage: http://127.0.0.1:5000 or http://127.0.0.1:5000/</b>", true);
+                        sendResponse(404, "<b>ERR:404 The Requested resource not found.", true);
                     }
                 }
             } else {
-                sendResponse(400, "<b>ERR:400 The Requested resource is not an html file or image file " +
-                        "Usage: http://127.0.0.1:5000 or http://127.0.0.1:5000/</b>", false);
+                sendResponse(400, "<b>ERR:400 The Requested resource is not an html file or image file. ", false);
             }
 
         } catch (Exception e) {
             e.printStackTrace();
             try {
-                sendResponse(500, "<b>ERR:500 The server encountered an unexpected error ...." +
-                        "Usage: http://127.0.0.1:5000 or http://127.0.0.1:5000/</b>", false);
+                sendResponse(500, "<b>ERR:500 The server encountered an unexpected error.", false);
             } catch (Exception e1) {
                 e1.printStackTrace();
                 System.out.println("Could not send HTTP 500 message.");
@@ -111,11 +107,14 @@ public class HTTPConnectionHandler implements Runnable {
         FileInputStream fin = null;
 
         if (statusCode == 200) {
-
-            File file = new File("src/HtmlResponses/HTTP200OK.html");
-            fin = new FileInputStream(file);
+            if (isFile) {
+                File file = new File("src/HtmlResponses/HTTP200OK.html");
+                fin = new FileInputStream(file);
+            } else {
+                fileName = responseString;
+                fin = new FileInputStream(fileName);
+            }
             sendFile(fin, outToClient);
-
         } else if (statusCode == 400) {
             File file = new File("src/HtmlResponses/HTTP400BadRequest.html");
             fin = new FileInputStream(file);
@@ -133,21 +132,7 @@ public class HTTPConnectionHandler implements Runnable {
 
         }
 
-        if (isFile) {
-            if (statusCode == 404) {
-                File file = new File("src/HtmlResponses/HTTP404NotFound.html");
-                fin = new FileInputStream(file);
-                sendFile(fin, outToClient);
 
-            } else {
-                fileName = responseString;
-                fin = new FileInputStream(fileName);
-
-                if (!fileName.endsWith(".htm") && !fileName.endsWith(".html")) {
-
-                }
-            }
-        }
         else {
             responseString = HTTPConnectionHandler.HTML_START + responseString + HTTPConnectionHandler.HTML_END;
 
