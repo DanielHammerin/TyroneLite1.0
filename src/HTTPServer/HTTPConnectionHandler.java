@@ -98,22 +98,13 @@ public class HTTPConnectionHandler implements Runnable {
     }
 
     public void sendResponse(int statusCode, String responseString, boolean isFile) throws Exception {
-
         String statusLine = null;
-
-
         String fileName = null;
-
         FileInputStream fin = null;
 
         if (statusCode == 200) {
-            if (isFile) {
-                File file = new File("src/HtmlResponses/HTTP200OK.html");
-                fin = new FileInputStream(file);
-            } else {
-                fileName = responseString;
-                fin = new FileInputStream(fileName);
-            }
+            fileName = responseString;
+            fin = new FileInputStream(fileName);
             sendFile(fin, outToClient);
         } else if (statusCode == 400) {
             File file = new File("src/HtmlResponses/HTTP400BadRequest.html");
@@ -130,10 +121,7 @@ public class HTTPConnectionHandler implements Runnable {
             fin = new FileInputStream(file);
             sendFile(fin, outToClient);
 
-        }
-
-
-        else {
+        } else {
             responseString = HTTPConnectionHandler.HTML_START + responseString + HTTPConnectionHandler.HTML_END;
 
         }
@@ -143,7 +131,8 @@ public class HTTPConnectionHandler implements Runnable {
         outToClient.writeBytes(contentTypeLine);
         outToClient.writeBytes(contentLengthLine);
         outToClient.writeBytes("Connection: close\r\n");
-*/        outToClient.writeBytes("\r\n");
+*/
+        outToClient.writeBytes("\r\n");
 
 
         if (isFile) {
@@ -164,7 +153,7 @@ public class HTTPConnectionHandler implements Runnable {
         while ((bytesRead = fin.read(buffer)) != -1) {
             out.write(buffer, 0, bytesRead);
         }
-       // fin.close();
+        // fin.close();
     }
 
 }
