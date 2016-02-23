@@ -61,21 +61,22 @@ public class HTTPConnectionHandler implements Runnable {
                     //This is interpreted as a file name
                     String fileName = httpQueryString.replaceFirst("/", "");
                     fileName = URLDecoder.decode(fileName, "UTF-8");
-
-                    if (new File(fileName).isFile()) {
-                        if (userPermission(responseBuffer.toString())) {
-                            sendResponse(200, fileName, true);
+                    if (new File(fileName).exists()) {
+                        if (!new File(fileName).isDirectory()) {
+                            if (userPermission(responseBuffer.toString())) {
+                                sendResponse(200, fileName, true);
+                            } else {
+                                sendResponse(403, "<b>ERR:403 The Requested resource is forbidden. ", false);
+                            }
                         } else {
-                            sendResponse(403, "<b>ERR:403 The Requested resource is forbidden. ", false);
+                            sendResponse(400, "<b>ERR:400 Bad Request. The Requested resource is not an html file or image file. ", false);
                         }
                     } else {
                         sendResponse(404, "<b>ERR:404 The Requested resource not found.", true);
                     }
                 }
-            } else {
-                sendResponse(400, "<b>ERR:400 The Requested resource is not an html file or image file. ", false);
-            }
 
+            }
         } catch (Exception e) {
             e.printStackTrace();
             try {
@@ -101,29 +102,28 @@ public class HTTPConnectionHandler implements Runnable {
         String statusLine = null;
         String fileName = null;
         FileInputStream fin = null;
+        File file;
 
         if (statusCode == 200) {
+            statusLine = "HTTP/1.1 200OK" + "\r\n";
             fileName = responseString;
             fin = new FileInputStream(fileName);
-            sendFile(fin, outToClient);
         } else if (statusCode == 400) {
-            File file = new File("src/HtmlResponses/HTTP400BadRequest.html");
+            statusLine = "HTTP/1.1 400 Bad Request" + "\r\n";
+            file = new File("src/HtmlResponses/HTTP400BadRequest.html");
             fin = new FileInputStream(file);
-            sendFile(fin, outToClient);
-
         } else if (statusCode == 403) {
-            File file = new File("src/HtmlResponses/HTTP403Forbidden.html");
+            statusLine = "HTTP/1.1 403 Forbidden" + "\r\n";
+            file = new File("src/HtmlResponses/HTTP403Forbidden.html");
             fin = new FileInputStream(file);
-            sendFile(fin, outToClient);
-
         } else if (statusCode == 500) {
-            File file = new File("src/HtmlResponses/HTTP500InternalServerError.html");
+            statusLine = "HTTP/1.1 500 Internal Server Error" + "\r\n";
+            file = new File("src/HtmlResponses/HTTP500InternalServerError.html");
             fin = new FileInputStream(file);
-            sendFile(fin, outToClient);
-
         } else {
-            responseString = HTTPConnectionHandler.HTML_START + responseString + HTTPConnectionHandler.HTML_END;
-
+            statusLine = "HTTP/1.1 404 Not Found" + "\r\n";
+            file = new File("src/HtmlResponses/HTTP404NotFound.html");
+            fin = new FileInputStream(file);
         }
 /*
         outToClient.writeBytes(statusLine);
