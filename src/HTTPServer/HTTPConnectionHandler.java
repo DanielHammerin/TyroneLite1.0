@@ -11,7 +11,7 @@ import java.util.StringTokenizer;
 public class HTTPConnectionHandler implements Runnable {
     private Socket clientSocket = null;
     private String folderAddressToAccess = "src/sharedfolder";   //Server folder with allowed access. Change this string to a desired folder to have access.
-    private String forbiddenFolder = "src/sharedfolder/forbiddenFolder";    //Personal forbidden folder in the allowed folder.
+    private String forbiddenFolder = "src/sharedfolder/forbiddenfolder";    //Personal forbidden folder in the allowed folder.
     static final String HTML_START = "<html>" + "<title>HTTP Server in java</title>" + "<body>";
     static final String HTML_END = "</body>" + "</html>";
 
@@ -61,18 +61,46 @@ public class HTTPConnectionHandler implements Runnable {
                     //This is interpreted as a file name
                     String fileName = httpQueryString.replaceFirst("/", "");
                     fileName = URLDecoder.decode(fileName, "UTF-8");
-                    if (new File(fileName).exists()) {
-                        if (!new File(fileName).isDirectory()) {
+                    if (!new File(fileName).isDirectory()) {
+                        if (new File(fileName).exists()) {
                             if (userPermission(responseBuffer.toString())) {
                                 sendResponse(200, fileName, true);
                             } else {
                                 sendResponse(403, "<b>ERR:403 The Requested resource is forbidden. ", false);
                             }
                         } else {
-                            sendResponse(400, "<b>ERR:400 Bad Request. The Requested resource is not an html file or image file. ", false);
+                            sendResponse(404, "<b>ERR:404 The Requested resource not found.", true);
                         }
                     } else {
-                        sendResponse(404, "<b>ERR:404 The Requested resource not found.", true);
+                        boolean b = false;
+                        boolean slash = false;
+                        if (requestString.endsWith("/")) {
+                            slash = true;
+                            requestString = requestString.replace(requestString.substring(requestString.length() - 1), "");
+                        }
+                        File dir = new File(requestString);
+                        File[] contents = dir.listFiles();
+                        StringBuilder sb = new StringBuilder();
+                        if (contents != null) {
+                            for (File f : contents) {
+                                if (f.getName().equals("index.html") || f.getName().equals("index.htm")) {
+                                    sb.append(requestString);
+                                    if (slash) {
+                                        sb.append("/" + f.getName());
+                                    }
+                                    else {
+                                        sb.append(f.getName());
+                                    }
+                                    b = true;
+                                }
+                            }
+                        }
+                        System.out.println(sb.toString());
+                        if (b) {
+                            sendResponse(200, sb.toString(), true);
+                        } else {
+                            sendResponse(400, "<b>ERR:400 Bad Request. The Requested resource is not an html file or image file. ", false);
+                        }
                     }
                 }
 
