@@ -95,6 +95,7 @@ public class HTTPConnectionHandler implements Runnable {
                                 }
                             }
                         }
+                        System.out.println("******");
                         System.out.println(sb.toString());
                         if (b) {
                             sendResponse(200, sb.toString(), true);
