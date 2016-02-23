@@ -160,7 +160,7 @@ public class HTTPConnectionHandler implements Runnable {
         outToClient.writeBytes(contentLengthLine);
         outToClient.writeBytes("Connection: close\r\n");
 */
-        outToClient.writeBytes("\r\n");
+      //  outToClient.writeBytes("\r\n");
 
 
         if (isFile) {
@@ -171,7 +171,7 @@ public class HTTPConnectionHandler implements Runnable {
             System.out.println(statusLine);
         }
 
-        //outToClient.close();
+        outToClient.close();
     }
 
     public void sendFile(FileInputStream fin, DataOutputStream out) throws Exception {
