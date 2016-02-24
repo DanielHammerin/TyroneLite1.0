@@ -60,13 +60,14 @@ public class HTTPConnectionHandler implements Runnable {
                 } else {
                     //This is interpreted as a file name
                     String fileName = httpQueryString.replaceFirst("/", "");
+                    System.out.println("File name" + fileName);
                     fileName = URLDecoder.decode(fileName, "UTF-8");
                     if (!new File(fileName).isDirectory()) {
                         if (new File(fileName).exists()) {
                             if (userPermission(responseBuffer.toString())) {
                                 sendResponse(200, fileName, true);
                             } else {
-                                sendResponse(403, "<b>ERR:403 The Requested resource is forbidden. ", false);
+                                sendResponse(403, "<b>ERR:403 The Requested resource is forbidden. ", true);
                             }
                         } else {
                             sendResponse(404, "<b>ERR:404 The Requested resource not found.", true);
@@ -74,29 +75,30 @@ public class HTTPConnectionHandler implements Runnable {
                     } else {
                         boolean b = false;
                         boolean slash = false;
-                        if (requestString.endsWith("/")) {
+                        if (!fileName.endsWith("/")) {
                             slash = true;
-                            requestString = requestString.replace(requestString.substring(requestString.length() - 1), "");
+                            int index = fileName.lastIndexOf("/");
+                            fileName = fileName.replace(fileName.substring(index, index), "");
+
+                            //httpQueryString = httpQueryString.replace(httpQueryString.substring(httpQueryString.length() - 1), "");
                         }
-                        File dir = new File(requestString);
+                        System.out.println("after" + fileName);
+                        File dir = new File(fileName);
                         File[] contents = dir.listFiles();
                         StringBuilder sb = new StringBuilder();
                         if (contents != null) {
                             for (File f : contents) {
                                 if (f.getName().equals("index.html") || f.getName().equals("index.htm")) {
-                                    sb.append(requestString);
+                                    sb.append(fileName);
                                     if (slash) {
                                         sb.append("/" + f.getName());
-                                    }
-                                    else {
+                                    } else {
                                         sb.append(f.getName());
                                     }
                                     b = true;
                                 }
                             }
                         }
-                        System.out.println("******");
-                        System.out.println(sb.toString());
                         if (b) {
                             sendResponse(200, sb.toString(), true);
                         } else {
@@ -161,7 +163,7 @@ public class HTTPConnectionHandler implements Runnable {
         outToClient.writeBytes(contentLengthLine);
         outToClient.writeBytes("Connection: close\r\n");
 */
-      //  outToClient.writeBytes("\r\n");
+        //  outToClient.writeBytes("\r\n");
 
 
         if (isFile) {
