@@ -60,7 +60,6 @@ public class HTTPConnectionHandler implements Runnable {
                 } else {
                     //This is interpreted as a file name
                     String fileName = httpQueryString.replaceFirst("/", "");
-                    System.out.println("File name" + fileName);
                     fileName = URLDecoder.decode(fileName, "UTF-8");
                     if (!new File(fileName).isDirectory()) {
                         if (new File(fileName).exists()) {
@@ -147,6 +146,8 @@ public class HTTPConnectionHandler implements Runnable {
             statusLine = "HTTP/1.1 403 Forbidden" + "\r\n";
             file = new File("src/HtmlResponses/HTTP403Forbidden.html");
             fin = new FileInputStream(file);
+            //file = new File("src/sharedfolder/subShared/evendeeper/403Austin.png");
+            //fin = new FileInputStream(file);
         } else if (statusCode == 500) {
             statusLine = "HTTP/1.1 500 Internal Server Error" + "\r\n";
             file = new File("src/HtmlResponses/HTTP500InternalServerError.html");
