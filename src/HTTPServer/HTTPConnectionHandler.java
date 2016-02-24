@@ -36,7 +36,14 @@ public class HTTPConnectionHandler implements Runnable {
             String requestString = inFromClient.readLine();
             headerLine = requestString;
 
-            inFromClient.readLine();
+          //  inFromClient.readLine();
+
+
+
+
+
+
+
             StringTokenizer tokenizer = new StringTokenizer(headerLine);
             String httpMethod = tokenizer.nextToken();
             String httpQueryString = tokenizer.nextToken();
@@ -138,24 +145,29 @@ public class HTTPConnectionHandler implements Runnable {
             statusLine = "HTTP/1.1 200OK" + "\r\n";
             fileName = responseString;
             fin = new FileInputStream(fileName);
+            sendFile(fin, outToClient);
         } else if (statusCode == 400) {
             statusLine = "HTTP/1.1 400 Bad Request" + "\r\n";
             file = new File("src/HtmlResponses/HTTP400BadRequest.html");
             fin = new FileInputStream(file);
+            sendFile(fin, outToClient);
         } else if (statusCode == 403) {
             statusLine = "HTTP/1.1 403 Forbidden" + "\r\n";
             file = new File("src/HtmlResponses/HTTP403Forbidden.html");
             fin = new FileInputStream(file);
+            sendFile(fin, outToClient);
             //file = new File("src/sharedfolder/subShared/evendeeper/403Austin.png");
             //fin = new FileInputStream(file);
         } else if (statusCode == 500) {
             statusLine = "HTTP/1.1 500 Internal Server Error" + "\r\n";
             file = new File("src/HtmlResponses/HTTP500InternalServerError.html");
             fin = new FileInputStream(file);
+            sendFile(fin, outToClient);
         } else {
             statusLine = "HTTP/1.1 404 Not Found" + "\r\n";
             file = new File("src/HtmlResponses/HTTP404NotFound.html");
             fin = new FileInputStream(file);
+            sendFile(fin, outToClient);
         }
 /*
         outToClient.writeBytes(statusLine);
@@ -166,7 +178,9 @@ public class HTTPConnectionHandler implements Runnable {
 */
         //  outToClient.writeBytes("\r\n");
 
+        System.out.println(statusLine);
 
+        /*
         if (isFile) {
             sendFile(fin, outToClient);
             System.out.println(statusLine);
@@ -175,6 +189,7 @@ public class HTTPConnectionHandler implements Runnable {
             System.out.println(statusLine);
         }
 
+*/
         outToClient.close();
     }
 
