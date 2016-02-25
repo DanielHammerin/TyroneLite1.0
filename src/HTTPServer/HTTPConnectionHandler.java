@@ -70,7 +70,7 @@ public class HTTPConnectionHandler implements Runnable {
                     fileName = URLDecoder.decode(fileName, "UTF-8");
                     if (!new File(fileName).isDirectory()) {
                         if (new File(fileName).exists()) {
-                            if (userPermission(responseBuffer.toString())) {
+                            if (userPermission(fileName)) {
                                 sendResponse(200, fileName, true);
                             } else {
                                 sendResponse(403, "<b>ERR:403 The Requested resource is forbidden. ", true);
@@ -169,16 +169,15 @@ public class HTTPConnectionHandler implements Runnable {
             fin = new FileInputStream(file);
             sendFile(fin, outToClient);
         }
-/*
+        /*
         outToClient.writeBytes(statusLine);
         outToClient.writeBytes(serverdetails);
         outToClient.writeBytes(contentTypeLine);
         outToClient.writeBytes(contentLengthLine);
         outToClient.writeBytes("Connection: close\r\n");
-*/
-        //  outToClient.writeBytes("\r\n");
-
+        outToClient.writeBytes("\r\n");
         System.out.println(statusLine);
+        */
 
         /*
         if (isFile) {
@@ -187,9 +186,9 @@ public class HTTPConnectionHandler implements Runnable {
         } else {
             outToClient.writeBytes(responseString);
             System.out.println(statusLine);
-        }
+       }*/
 
-*/
+
         outToClient.close();
     }
 
